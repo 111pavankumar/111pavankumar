@@ -1,20 +1,100 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>CodePen - A Pen by Pavan</title>
-  <link rel="stylesheet" href="./style.css">
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced Calculator</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-container {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            width: 360px;
+            max-width: 100%;
+        }
+        .display {
+            background-color: #000;
+            color: #0f9b0f;
+            border-radius: 5px;
+            padding: 15px;
+            text-align: right;
+            font-size: 24px;
+            min-height: 50px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #333;
+            border: 1px solid #444;
+            color: #e0e0e0;
+            padding: 15px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            flex: 1 1 calc(25% - 10px);
+        }
+        button:hover {
+            background-color: #444;
+        }
+        button.operator {
+            background-color: #ff9800;
+        }
+        button.operator:hover {
+            background-color: #f57c00;
+        }
+        button.double {
+            flex: 1 1 calc(50% - 10px);
+        }
+        button.double.operator {
+            background-color: #f44336;
+        }
+        button.double.operator:hover {
+            background-color: #d32f2f;
+        }
+        .advanced-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .advanced-buttons button {
+            background-color: #444;
+            color: #ddd;
+        }
+        .advanced-buttons button:hover {
+            background-color: #555;
+        }
+        .single-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .single-row button {
+            background-color: #555;
+            color: #ddd;
+        }
+        .single-row button:hover {
+            background-color: #666;
+        }
+    </style>
 </head>
 <body>
     <div class="calculator-container">
@@ -65,11 +145,75 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
-<!-- partial -->
-  <script  src="./script.js"></script>
+    <script>
+        function appendToDisplay(value) {
+            const display = document.getElementById('display');
+            display.innerText += value;
+            // Move the cursor to the end of the text
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(display);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
 
+        function clearDisplay() {
+            document.getElementById('display').innerText = '';
+        }
+
+        function backspace() {
+            const display = document.getElementById('display');
+            let content = display.innerText;
+            content = content.slice(0, -1);
+            display.innerText = content;
+        }
+
+        function calculateResult() {
+            try {
+                let expression = document.getElementById('display').innerText;
+
+                // Convert the power operator '^' to '**'
+                expression = expression.replace(/\^/g, '**');
+
+                // Convert sqrt to Math.sqrt
+                expression = expression.replace(/sqrt\(/g, 'Math.sqrt(');
+
+                // Convert log10 and ln to JavaScript functions
+                expression = expression.replace(/log10\(/g, 'Math.log10(');
+                expression = expression.replace(/ln\(/g, 'Math.log(');
+
+                // Convert trigonometric functions to JavaScript functions
+                expression = expression.replace(/sin\(/g, 'Math.sin(');
+                expression = expression.replace(/cos\(/g, 'Math.cos(');
+                expression = expression.replace(/tan\(/g, 'Math.tan(');
+
+                // Convert other functions to JavaScript functions
+                expression = expression.replace(/exp\(/g, 'Math.exp(');
+                expression = expression.replace(/ceil\(/g, 'Math.ceil(');
+                expression = expression.replace(/floor\(/g, 'Math.floor(');
+
+                // Ensure trigonometric functions receive input in radians
+                expression = expression.replace(/sin\(/g, 'Math.sin(');
+                expression = expression.replace(/cos\(/g, 'Math.cos(');
+                expression = expression.replace(/tan\(/g, 'Math.tan(');
+
+                // Validate expression to prevent dangerous operations
+                if (/[^0-9+\-*/().^sincostanloglnexpceilfloorMathPIEe]/.test(expression)) {
+                    throw new Error("Invalid characters in expression");
+                }
+
+                // Evaluate the expression
+                // Use Function constructor to evaluate expressions safely
+                const result = new Function('return ' + expression)();
+
+                // Display result
+                document.getElementById('display').innerText = result;
+            } catch (error) {
+                // Handle any errors that occur during evaluation
+                document.getElementById('display').innerText = 'Error';
+            }
+        }
+    </script>
 </body>
 </html>
